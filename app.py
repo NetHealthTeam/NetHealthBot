@@ -3,6 +3,10 @@ from flask import jsonify
 from flask import Flask, request
 from flask_restful import Resource, Api, reqparse
 import re
+from datetime import datetime
+from datetime import timedelta
+import calendar
+
 def make_vocab():
   months = "january|february|march|april|may|june|july|august|september|octember|november|december"
   months = months.split("|")
@@ -24,11 +28,12 @@ def make_vocab():
 
 
 def find_month(x,vocab):
-  m = re.match(r".*(\d+).*("+vocab[:-1]+")", x)
+  m = re.match(r"\D*([0-9]{1,2}).*("+vocab[:-1]+")", x)
   if m:
     return m.group(1),m.group(2)
   else:
-    m = re.match(r".*("+vocab[:-1]+").*(\d+)", x)
+    m = re.match(r".*("+vocab[:-1]+")\D*([0-9]{1,2})", x)
+    # print(m.group(2))
     if m: return m.group(2),m.group(1)
     else: return None,None
 
@@ -69,9 +74,6 @@ def make_key_month(months):
   # print(new_dict)
   return new_dict
 
-from datetime import datetime
-from datetime import timedelta
-import calendar
 
 
 def find_date(X):
@@ -96,24 +98,30 @@ def find_date(X):
   # print(day_not_digit)
     # print("Date is")
   if day and month:
+    print("Day and month")
     my_string = str(todays_date.year)+"-"+str(months[month])+"-"+str(day)
     my_date = datetime.strptime(my_string, "%Y-%m-%d")  
-    # print(my_date)
+    print(my_date)
+    print(my_date.weekday())
   if day_not_digit:
+    print("Days not digit")
+
     digit = days_not_digit[day_not_digit]
     date_diet = datetime.today() + timedelta(days=digit)
     my_string = str(date_diet.year)+"-"+str(date_diet.month)+"-"+str(date_diet.day)
     my_date = datetime.strptime(my_string, "%Y-%m-%d")  
-    # print(my_date)
+    print(my_date)
   if week_day:
+    print("Week day")
+
     distance = week_days[week_day] - week_days[str(calendar.day_name[todays_date.weekday()]).lower()]
     if distance < 0:
       distance += 7
     date_diet = datetime.today() + timedelta(days=distance)
     my_string = str(date_diet.year)+"-"+str(date_diet.month)+"-"+str(date_diet.day)
     my_date = datetime.strptime(my_string, "%Y-%m-%d")  
-    # print(my_date)
-  return my_date,meal_time
+    print(my_date)
+  return my_date.weekday(),meal_time
 
 def clean_str(string):
     # string = re.sub(r'\W', ' ', str(X[sen]))
@@ -179,10 +187,13 @@ class predict_category(Resource):
         
         try:
             day_time, lunch_type = find_date(txt)
+            return jsonify({'category': our_dict[category],"date":day_time.weekday(),"lunch_type":lunch_type})
         except:
             day_time, lunch_type = None,None
+            return jsonify({'category': our_dict[category],"date":day_time,"lunch_type":lunch_type})
         # print(our_dict[category],day_time,lunch_type)
-        return jsonify({'category': our_dict[category],"date":day_time,"lunch_type":lunch_type})
+        
+        return jsonify({'category': our_dict[category],"date":day_time.weekday(),"lunch_type":lunch_type})
 
 api.add_resource(predict_category, '/predict')
 
