@@ -101,8 +101,8 @@ def find_date(X):
     print("Day and month")
     my_string = str(todays_date.year)+"-"+str(months[month])+"-"+str(day)
     my_date = datetime.strptime(my_string, "%Y-%m-%d")  
-    print(my_date)
-    print(my_date.weekday())
+    # print(my_date)
+    # print(my_date.weekday())
   if day_not_digit:
     print("Days not digit")
 
@@ -120,7 +120,7 @@ def find_date(X):
     date_diet = datetime.today() + timedelta(days=distance)
     my_string = str(date_diet.year)+"-"+str(date_diet.month)+"-"+str(date_diet.day)
     my_date = datetime.strptime(my_string, "%Y-%m-%d")  
-    print(my_date)
+    # print(my_date)
   return my_date.weekday(),meal_time
 
 def clean_str(string):
@@ -187,7 +187,9 @@ class predict_category(Resource):
         
         try:
             day_time, lunch_type = find_date(txt)
-            return jsonify({'category': our_dict[category],"date":day_time.weekday(),"lunch_type":lunch_type})
+                    # print(our_dict[category],day_time,lunch_type)
+            # print(day_time.weekday())
+            return jsonify({'category': our_dict[category],"date":day_time,"lunch_type":lunch_type})
         except:
             day_time, lunch_type = None,None
             return jsonify({'category': our_dict[category],"date":day_time,"lunch_type":lunch_type})
