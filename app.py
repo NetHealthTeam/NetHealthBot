@@ -120,7 +120,7 @@ def find_date(X):
     date_diet = datetime.today() + timedelta(days=distance)
     my_string = str(date_diet.year)+"-"+str(date_diet.month)+"-"+str(date_diet.day)
     my_date = datetime.strptime(my_string, "%Y-%m-%d")  
-    # print(my_date)
+    print(my_date)
   return my_date.weekday(),meal_time
 
 def clean_str(string):
@@ -149,7 +149,6 @@ def clean_str(string):
     string = ' '.join(string)
     return string
 def find_category(string):
-    string = clean_str(string)
     classifier = joblib.load("./random_forest.joblib")
     vectorizer = joblib.load("./vectorizer.joblib")
     tfidfconverter = joblib.load("./tfidfconverter.joblib")
@@ -177,6 +176,7 @@ class predict_category(Resource):
         our_dict = {0:"workout",1:"diet for next days",2:"diet for today"}
         args = parser.parse_args()
         txt = args['text']
+        txt = clean_str(txt)
         # print("\n\n\n\n\n\n\n")
         # print(txt)
         # print("\n\n\n\n\n\n\n")
@@ -185,6 +185,8 @@ class predict_category(Resource):
         except:
             category = None
         
+        # print("")
+        # print(category)
         try:
             day_time, lunch_type = find_date(txt)
                     # print(our_dict[category],day_time,lunch_type)
